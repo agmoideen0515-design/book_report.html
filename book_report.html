@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMS Office Final Stock Report</title>
+    <title>MEMS Office Detailed Report</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -15,18 +15,16 @@
         .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
         select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; min-width: 150px; font-family: 'Noto Sans Malayalam', sans-serif; }
         
-        /* Buttons */
         .btn-action { padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; border: none; font-family: 'Noto Sans Malayalam', sans-serif; }
         .btn-print { background: #1a5d1a; color: white; margin-left: auto; }
         .btn-info { background: #0277bd; color: white; }
 
-        /* Summary Box */
         #descriptionArea { display: none; background: #fffde7; border: 2px solid #fbc02d; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
-        .summary-table td, .summary-table th { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .summary-table th { background: #fff9c4; }
+        .summary-table td, .summary-table th { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .summary-table th { background: #fff9c4; color: #333; }
+        .count-bold { color: #d32f2f; font-size: 1.2em; font-weight: bold; text-align: center; }
 
-        /* Report Cards */
         .report-card { border: 1px solid #ddd; border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
         .report-header { background: #1a5d1a; color: white; padding: 12px; }
         .report-header h3 { margin: 0; font-size: 1.1em; }
@@ -48,7 +46,7 @@
 <div class="container">
     <div class="header-box">
         <h2>MEMS TRIKARIPUR</h2>
-        <p><b>ഓഫീസ് ബുക്ക് സ്റ്റോക്ക് റിപ്പോർട്ട് - 2026</b></p>
+        <p><b>ഓഫീസ് ബുക്ക് റിപ്പോർട്ട് - 2026</b></p>
     </div>
 
     <div class="admin-controls">
@@ -70,7 +68,6 @@
     </div>
 
     <div id="descriptionArea"></div>
-    
     <div id="reportArea"></div>
 </div>
 
@@ -91,8 +88,6 @@
     function generateReport() {
         const classVal = document.getElementById('classFilter').value;
         const divVal = document.getElementById('divFilter').value;
-        
-        // തിരഞ്ഞെടുത്ത ക്ലാസ്സിലെ ആകെ വിവരങ്ങൾ (എല്ലാ ഡിവിഷനും)
         const classData = allData.filter(item => String(item.sClass) === classVal);
         
         let classBookCounts = {};
@@ -103,18 +98,16 @@
             });
         });
 
-        // വിവരണം ഏരിയ അപ്‌ഡേറ്റ് ചെയ്യുന്നു
-        let descHtml = `<h4>ക്ലാസ്സ് ${classVal} - ആകെ കിതാബുകളുടെ വിവരം</h4>`;
-        descHtml += `<p>ഈ ക്ലാസ്സിലെ എല്ലാ ഡിവിഷനുകളിലുമായി ആകെ ആവശ്യമുള്ള കിതാബുകളുടെ കണക്ക് താഴെ നൽകുന്നു:</p>`;
-        descHtml += `<table class="summary-table"><thead><tr><th>കിതാബിന്റെ പേര്</th><th>ആകെ എണ്ണം</th></tr></thead><tbody>`;
+        // വിവരണ പട്ടിക തയ്യാറാക്കുന്നു
+        let descHtml = `<h4>ക്ലാസ്സ് ${classVal} - ആകെ കിതാബ് കണക്ക്</h4>`;
+        descHtml += `<table class="summary-table"><thead><tr><th>കിതാബിന്റെ പേര് (പേരും തരവും)</th><th style="text-align:center;">ആകെ എണ്ണം</th></tr></thead><tbody>`;
         
         Object.keys(classBookCounts).sort().forEach(book => {
-            descHtml += `<tr><td>${book}</td><td><b>${classBookCounts[book]}</b></td></tr>`;
+            descHtml += `<tr><td>${book}</td><td class="count-bold">${classBookCounts[book]}</td></tr>`;
         });
         descHtml += `</tbody></table>`;
         document.getElementById('descriptionArea').innerHTML = descHtml;
 
-        // ഓരോ ഡിവിഷൻ തിരിച്ചുള്ള റിപ്പോർട്ട്
         const filtered = classData.filter(item => (divVal === 'all' || item.division === divVal));
         let html = '';
         const divisions = divVal === 'all' ? [...new Set(filtered.map(item => item.division))].sort() : [divVal];
