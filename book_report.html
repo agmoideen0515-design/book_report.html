@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMS Class & Division Summary</title>
+    <title>MEMS Office Final Report</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -15,12 +15,15 @@
         .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; }
         select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; min-width: 150px; font-family: 'Noto Sans Malayalam', sans-serif; }
         
-        /* ക്ലാസ്സ് ടോട്ടൽ ബോക്സ് */
-        .class-summary-box { background: #fff3e0; border: 2px solid #ffb74d; padding: 15px; border-radius: 10px; margin-bottom: 25px; text-align: center; }
-        .class-summary-box h4 { margin: 0 0 10px 0; color: #e65100; text-transform: uppercase; }
+        /* Summary Box Design */
+        .class-summary-box { background: #e3f2fd; border: 2px solid #2196f3; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
+        .class-summary-box h4 { margin: 0 0 10px 0; color: #0d47a1; text-align: center; text-transform: uppercase; }
+        .sum-grid { display: flex; justify-content: space-around; text-align: center; margin-top: 10px; }
+        .sum-item b { font-size: 1.5em; color: #d32f2f; display: block; }
+        .sum-item span { font-size: 0.9em; color: #555; }
 
         .report-card { border: 1px solid #ddd; border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
-        .report-header { background: #1a5d1a; color: white; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .report-header { background: #1a5d1a; color: white; padding: 12px; }
         .report-header h3 { margin: 0; font-size: 1.1em; }
         
         table { width: 100%; border-collapse: collapse; }
@@ -61,7 +64,6 @@
     </div>
 
     <div id="classSummaryArea"></div>
-    
     <div id="reportArea"></div>
 </div>
 
@@ -77,27 +79,36 @@
     function generateReport() {
         const classVal = document.getElementById('classFilter').value;
         const divVal = document.getElementById('divFilter').value;
-        
-        // തിരഞ്ഞെടുത്ത ക്ലാസ്സിലെ ആകെ കുട്ടികൾ (എല്ലാ ഡിവിഷനും ചേർത്ത്)
         const classData = allData.filter(item => String(item.sClass) === classVal);
         
-        // തിരഞ്ഞെടുത്ത ക്ലാസ്സിലെ ആകെ പുസ്തകങ്ങളുടെ കണക്ക്
-        let classBookTotal = 0;
+        let totalText = 0;
+        let totalWork = 0;
+
+        // ഓരോ കുട്ടിയുടെയും പുസ്തകങ്ങൾ പരിശോധിച്ച് ടെക്സ്റ്റ്/വർക്ക് ബുക്കുകൾ എണ്ണുന്നു
         classData.forEach(item => {
-            const count = item.selectedBooks.split(',').filter(n => n.trim()).length;
-            classBookTotal += count;
+            const books = item.selectedBooks.toLowerCase();
+            const bookList = item.selectedBooks.split(',');
+            bookList.forEach(b => {
+                let name = b.toLowerCase();
+                if(name.includes("text")) totalText++;
+                else if(name.includes("work")) totalWork++;
+            });
         });
 
-        // ക്ലാസ്സ് സമ്മറി ബോക്സ് കാണിക്കുന്നു
         document.getElementById('classSummaryArea').innerHTML = `
             <div class="class-summary-box">
-                <h4>ക്ലാസ്സ് ${classVal} - ആകെ വിവരണം</h4>
-                <p>ഈ ക്ലാസ്സിലെ എല്ലാ ഡിവിഷനുകളിലുമായി ആകെ <b>${classData.length}</b> കുട്ടികളാണ് ഓർഡർ നൽകിയിട്ടുള്ളത്. 
-                വിതരണം ചെയ്യേണ്ട ആകെ പുസ്തകങ്ങൾ: <b>${classBookTotal}</b> എണ്ണം.</p>
+                <h4>ക്ലാസ്സ് ${classVal} - ആകെ സ്റ്റോക്ക് വിവരണം</h4>
+                <div class="sum-grid">
+                    <div class="sum-item"><span>ആകെ കുട്ടികൾ</span><b>${classData.length}</b></div>
+                    <div class="sum-item"><span>ടെക്സ്റ്റ് ബുക്കുകൾ</span><b>${totalText}</b></div>
+                    <div class="sum-item"><span>വർക്ക് ബുക്കുകൾ</span><b>${totalWork}</b></div>
+                </div>
+                <p style="text-align:center; font-size:0.9em; margin-top:15px; color:#555;">
+                    ഈ ക്ലാസ്സിലെ എല്ലാ ഡിവിഷനുകളിലുമായി വിതരണം ചെയ്യേണ്ട ആകെ പുസ്തകങ്ങളുടെ കണക്കാണിത്.
+                </p>
             </div>
         `;
 
-        // ഡിവിഷൻ തിരിച്ചുള്ള ഫിൽട്ടറിംഗ്
         const filtered = classData.filter(item => (divVal === 'all' || item.division === divVal));
         let html = '';
         const divisions = divVal === 'all' ? [...new Set(filtered.map(item => item.division))].sort() : [divVal];
