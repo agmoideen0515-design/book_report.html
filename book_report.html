@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMS Office Report</title>
+    <title>MEMS Office Summary Report</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
         .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 1100px; margin: auto; }
-        .header-box { text-align: center; border-bottom: 3px solid #1a5d1a; margin-bottom: 25px; padding-bottom: 10px; }
-        h2 { color: #1a5d1a; margin: 0; text-transform: uppercase; }
-        p.school-name { margin: 5px 0; color: #666; font-weight: bold; }
-        .admin-controls { background: #e8f5e9; padding: 20px; border-radius: 10px; margin-bottom: 25px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
-        .control-group { display: flex; flex-direction: column; gap: 5px; }
-        label { font-weight: bold; color: #2e7d32; font-size: 0.9em; }
-        select { padding: 10px; border: 1px solid #adcab1; border-radius: 6px; min-width: 130px; }
-        .btn-print { background: #1a5d1a; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: auto; }
-        .summary-badge { background: #1a5d1a; color: white; padding: 10px 20px; border-radius: 50px; display: inline-block; margin-bottom: 15px; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .header-box { text-align: center; border-bottom: 3px solid #1a5d1a; margin-bottom: 20px; padding-bottom: 10px; }
+        h2 { color: #1a5d1a; margin: 0; }
+        .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; }
+        .btn-print { background: #1a5d1a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: auto; }
+        
+        /* Summary Box Design */
+        .summary-card { background: #fff3e0; border: 2px solid #ffb74d; padding: 15px; border-radius: 10px; margin: 20px 0; display: flex; gap: 20px; justify-content: center; }
+        .summary-item { text-align: center; padding: 10px 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .summary-item span { display: block; font-size: 0.9em; color: #666; }
+        .summary-item b { font-size: 1.4em; color: #e65100; }
+
+        table { width: 100%; border-collapse: collapse; }
         th { background: #1a5d1a; color: white; padding: 12px; text-align: left; }
-        td { border-bottom: 1px solid #eee; padding: 12px; }
-        tr:nth-child(even) { background-color: #fcfdfc; }
+        td { border-bottom: 1px solid #eee; padding: 10px; }
+        
         @media print {
             .admin-controls, .btn-print { display: none !important; }
-            body { padding: 0; background: white; }
             .container { box-shadow: none; max-width: 100%; }
+            .summary-card { border: 2px solid #333; }
         }
     </style>
 </head>
@@ -32,34 +34,28 @@
 <div class="container">
     <div class="header-box">
         <h2>MEMS TRIKARIPUR</h2>
-        <p class="school-name">ISLAMIC BOOK ORDER REPORT - 2026</p>
+        <p><b>BOOK ORDER SUMMARY REPORT - 2026</b></p>
     </div>
 
     <div class="admin-controls">
-        <div class="control-group">
-            <label>ക്ലാസ്സ്</label>
-            <select id="classFilter" onchange="filterData()">
-                <option value="all">എല്ലാ ക്ലാസ്സുകളും</option>
-                <option value="3">Class 3</option><option value="4">Class 4</option>
-                <option value="5">Class 5</option><option value="6">Class 6</option>
-                <option value="7">Class 7</option><option value="8">Class 8</option>
-            </select>
-        </div>
-
-        <div class="control-group">
-            <label>ഡിവിഷൻ</label>
-            <select id="divFilter" onchange="filterData()">
-                <option value="all">എല്ലാം</option>
-                <option value="A">A</option><option value="B">B</option>
-                <option value="C">C</option><option value="D">D</option>
-                <option value="E">E</option><option value="F">F</option>
-                <option value="G">G</option> </select>
-        </div>
-
+        <label>ക്ലാസ്സ്:</label>
+        <select id="classFilter" onchange="filterData()">
+            <option value="all">എല്ലാ ക്ലാസ്സുകളും</option>
+            <option value="3">Class 3</option><option value="4">Class 4</option>
+            <option value="5">Class 5</option><option value="6">Class 6</option>
+            <option value="7">Class 7</option><option value="8">Class 8</option>
+        </select>
+        <label>ഡിവിഷൻ:</label>
+        <select id="divFilter" onchange="filterData()">
+            <option value="all">എല്ലാം</option>
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
+        </select>
         <button class="btn-print" onclick="window.print()">🖨️ Print Report</button>
     </div>
 
-    <div id="summary" class="summary-badge">ആകെ ഓർഡറുകൾ: 0</div>
+    <div id="summarySection"></div>
+    
     <div id="tableContent"></div>
 </div>
 
@@ -67,9 +63,7 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzBTYh1xyzmR_7P_RmZ0MXTauh-3OSyNBOU0fk1ztq_AIHKPsfnB_41yqI6_7VHKf8V/exec';
     let allData = [];
 
-    fetch(scriptURL)
-    .then(response => response.json())
-    .then(data => {
+    fetch(scriptURL).then(res => res.json()).then(data => {
         allData = data;
         filterData();
     });
@@ -79,19 +73,35 @@
         const divVal = document.getElementById('divFilter').value;
         
         const filtered = allData.filter(item => {
-            const matchClass = (classVal === 'all' || String(item.sClass) === classVal);
-            const matchDiv = (divVal === 'all' || item.division === divVal);
-            return matchClass && matchDiv;
+            return (classVal === 'all' || String(item.sClass) === classVal) && 
+                   (divVal === 'all' || item.division === divVal);
         });
-        
-        document.getElementById('summary').innerText = `ആകെ ഓർഡറുകൾ: ${filtered.length}`;
-        
-        let html = '<table><thead><tr><th>No.</th><th>Student Name</th><th>Class</th><th>Div</th><th>Books</th></tr></thead><tbody>';
+
+        // പുസ്തകങ്ങളുടെ എണ്ണം കണക്കാക്കുന്നു
+        let totalTextBooks = 0;
+        let totalWorkBooks = 0;
+
+        filtered.forEach(item => {
+            const books = item.selectedBooks.toLowerCase();
+            if(books.includes("text")) totalTextBooks++;
+            if(books.includes("work")) totalWorkBooks++;
+        });
+
+        // സമ്മറി കാണിക്കുന്നു
+        document.getElementById('summarySection').innerHTML = `
+            <div class="summary-card">
+                <div class="summary-item"><span>ആകെ കുട്ടികൾ</span><b>${filtered.length}</b></div>
+                <div class="summary-item"><span>ടെക്സ്റ്റ് ബുക്കുകൾ</span><b>${totalTextBooks}</b></div>
+                <div class="summary-item"><span>വർക്ക് ബുക്കുകൾ</span><b>${totalWorkBooks}</b></div>
+            </div>
+        `;
+
+        let html = '<table><thead><tr><th>No.</th><th>Name</th><th>Class</th><th>Div</th><th>Books</th></tr></thead><tbody>';
         filtered.forEach((item, index) => {
-            html += `<tr><td>${index + 1}</td><td><b>${item.name}</b></td><td>${item.sClass}</td><td>${item.division}</td><td>${item.selectedBooks}</td></tr>`;
+            html += `<tr><td>${index+1}</td><td><b>${item.name}</b></td><td>${item.sClass}</td><td>${item.division}</td><td>${item.selectedBooks}</td></tr>`;
         });
         html += '</tbody></table>';
-        document.getElementById('tableContent').innerHTML = filtered.length > 0 ? html : '<p style="text-align:center;">ഓർഡറുകൾ ലഭ്യമല്ല.</p>';
+        document.getElementById('tableContent').innerHTML = filtered.length > 0 ? html : '<p style="text-align:center;">ഡാറ്റ ലഭ്യമല്ല.</p>';
     }
 </script>
 
