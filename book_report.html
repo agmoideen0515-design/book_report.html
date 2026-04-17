@@ -1,19 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="ml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEMS Book Order Report</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 15px; }
         .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1000px; margin: auto; }
         h2 { color: #1a5d1a; text-align: center; border-bottom: 2px solid #1a5d1a; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .filter-section { background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background: #1a5d1a; color: white; }
         tr:nth-child(even) { background-color: #f9f9f9; }
-        .filter-section { background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -21,9 +20,9 @@
 <div class="container">
     <h2>MEMS TRIKARIPUR - BOOK ORDER REPORT</h2>
     <div class="filter-section">
-        <label>ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക: </label>
+        <label>ക്ലാസ്സ്:</label>
         <select id="classFilter" onchange="filterData()">
-            <option value="all">All Classes</option>
+            <option value="all">എല്ലാ ക്ലാസ്സുകളും</option>
             <option value="3">Class 3</option>
             <option value="4">Class 4</option>
             <option value="5">Class 5</option>
@@ -37,7 +36,7 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyWgOtjAw-QZcp7fryP0q5B1ga3Yd-L7v21Fa0BzGYD1VgZ-UUr_QVW7nKmWcDyQAC9/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzBTYh1xyzmR_7P_RmZ0MXTauh-3OSyNBOU0fk1ztq_AIHKPsfnB_41yqI6_7VHKf8V/exec';
     let allData = [];
 
     fetch(scriptURL)
@@ -57,10 +56,10 @@
         
         let html = '<table><thead><tr><th>No.</th><th>Name</th><th>Class</th><th>Div</th><th>Books</th></tr></thead><tbody>';
         filtered.forEach((item, index) => {
-            html += <tr><td>${index + 1}</td><td>${item.name}</td><td>${item.sClass}</td><td>${item.division}</td><td>${item.selectedBooks}</td></tr>;
+            html += `<tr><td>${index + 1}</td><td>${item.name}</td><td>${item.sClass}</td><td>${item.division}</td><td>${item.selectedBooks}</td></tr>`;
         });
         html += '</tbody></table>';
-        document.getElementById('tableContent').innerHTML = filtered.length > 0 ? html : '<p style="text-align:center;">ഓർഡറുകൾ ലഭ്യമല്ല.</p>';
+        document.getElementById('tableContent').innerHTML = filtered.length > 0 ? html : '<p>ഓർഡറുകൾ ലഭ്യമല്ല.</p>';
     }
 </script>
 
