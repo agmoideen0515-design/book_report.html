@@ -3,25 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMS Office Detailed Report</title>
+    <title>MEMS Division-wise Stock Report</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
         .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 900px; margin: auto; }
-        .header-box { text-align: center; border-bottom: 3px solid #1a5d1a; margin-bottom: 25px; padding-bottom: 10px; }
+        .header-box { text-align: center; border-bottom: 3px solid #1a5d1a; margin-bottom: 20px; padding-bottom: 10px; }
         h2 { color: #1a5d1a; margin: 0; }
-        .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-        select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; min-width: 200px; }
-        .btn-print { background: #1a5d1a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #1a5d1a; color: white; padding: 12px; text-align: left; border: 1px solid #144514; }
-        td { border: 1px solid #ddd; padding: 12px; font-weight: bold; font-size: 1.1em; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .count-cell { color: #e65100; font-size: 1.3em; text-align: center; width: 100px; }
+        .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; min-width: 150px; font-weight: bold; }
+        .btn-print { background: #1a5d1a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: auto; }
+        
+        .report-header { background: #1a5d1a; color: white; padding: 12px; border-radius: 5px; text-align: center; margin: 20px 0 10px 0; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background: #f0f0f0; color: #333; padding: 12px; text-align: left; border: 1px solid #ddd; }
+        td { border: 1px solid #ddd; padding: 12px; font-weight: bold; }
+        .count-column { text-align: center; color: #d32f2f; font-size: 1.2em; width: 120px; background: #fff8f8; }
 
         @media print {
             .admin-controls, .btn-print { display: none !important; }
-            .container { box-shadow: none; border: 1px solid #eee; width: 100%; }
+            .container { box-shadow: none; border: none; width: 100%; }
+            body { padding: 0; }
         }
     </style>
 </head>
@@ -30,23 +33,28 @@
 <div class="container">
     <div class="header-box">
         <h2>MEMS TRIKARIPUR</h2>
-        <p><b>DETAILED BOOK STOCK REPORT - 2026</b></p>
+        <p><b>DIVISION-WISE BOOK STOCK REPORT - 2026</b></p>
     </div>
 
     <div class="admin-controls">
-        <div>
-            <label><b>ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക:</b> </label>
-            <select id="classFilter" onchange="generateDetailedReport()">
-                <option value="all">എല്ലാ ക്ലാസ്സുകളും (Total)</option>
-                <option value="3">Class 3</option><option value="4">Class 4</option>
-                <option value="5">Class 5</option><option value="6">Class 6</option>
-                <option value="7">Class 7</option><option value="8">Class 8</option>
-            </select>
-        </div>
+        <label><b>ക്ലാസ്സ്:</b></label>
+        <select id="classFilter" onchange="generateDivisionReport()">
+            <option value="3">Class 3</option><option value="4">Class 4</option>
+            <option value="5">Class 5</option><option value="6">Class 6</option>
+            <option value="7">Class 7</option><option value="8">Class 8</option>
+        </select>
+
+        <label><b>ഡിവിഷൻ:</b></label>
+        <select id="divFilter" onchange="generateDivisionReport()">
+            <option value="all">എല്ലാ ഡിവിഷനും (All)</option>
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
+        </select>
+
         <button class="btn-print" onclick="window.print()">🖨️ Print Report</button>
     </div>
 
-    <div id="resultArea">
+    <div id="reportArea">
         </div>
 </div>
 
@@ -56,46 +64,47 @@
 
     fetch(scriptURL).then(res => res.json()).then(data => {
         allData = data;
-        generateDetailedReport();
+        generateDivisionReport();
     });
 
-    function generateDetailedReport() {
+    function generateDivisionReport() {
         const classVal = document.getElementById('classFilter').value;
-        const filtered = allData.filter(item => (classVal === 'all' || String(item.sClass) === classVal));
-
-        let bookCounts = {};
-
-        // ഓരോ കുട്ടിയും തിരഞ്ഞെടുത്ത പുസ്തകങ്ങളെ വേർതിരിച്ച് എണ്ണുന്നു
-        filtered.forEach(item => {
-            const books = item.selectedBooks.split(','); // കോമ ഉണ്ടെങ്കിൽ വേർതിരിക്കും
-            books.forEach(book => {
-                let bookName = book.trim();
-                if (bookName) {
-                    bookCounts[bookName] = (bookCounts[bookName] || 0) + 1;
-                }
-            });
+        const divVal = document.getElementById('divFilter').value;
+        
+        // ഫിൽട്ടർ ചെയ്യുന്നു
+        const filtered = allData.filter(item => {
+            return String(item.sClass) === classVal && (divVal === 'all' || item.division === divVal);
         });
 
-        let html = `<h3>${classVal === 'all' ? 'സ്കൂളിലെ ആകെ കണക്ക്' : 'ക്ലാസ്സ്: ' + classVal}</h3>`;
-        html += '<table><thead><tr><th>പുസ്തകത്തിന്റെ പേര്</th><th>ആവശ്യമുള്ള എണ്ണം</th></tr></thead><tbody>';
-
-        const sortedBooks = Object.keys(bookCounts).sort();
+        let html = '';
         
-        if (sortedBooks.length === 0) {
-            html += '<tr><td colspan="2" style="text-align:center;">വിവരങ്ങൾ ലഭ്യമല്ല</td></tr>';
-        } else {
-            sortedBooks.forEach(book => {
-                html += `<tr>
-                    <td>${book}</td>
-                    <td class="count-cell">${bookCounts[book]}</td>
-                </tr>`;
+        // ഡിവിഷനുകൾ കണ്ടെത്തുന്നു
+        const divisions = divVal === 'all' ? [...new Set(filtered.map(item => item.division))].sort() : [divVal];
+
+        divisions.forEach(div => {
+            const divData = filtered.filter(item => item.division === div);
+            if (divData.length === 0) return;
+
+            let bookCounts = {};
+            divData.forEach(item => {
+                const books = item.selectedBooks.split(',');
+                books.forEach(name => {
+                    let cleanName = name.trim();
+                    if (cleanName) bookCounts[cleanName] = (bookCounts[cleanName] || 0) + 1;
+                });
             });
-        }
 
-        html += '</tbody></table>';
-        html += `<p style="margin-top:20px; color:#666;">ആകെ ഓർഡർ നൽകിയ കുട്ടികൾ: ${filtered.length}</p>`;
-        
-        document.getElementById('resultArea').innerHTML = html;
+            html += `<div class="report-header"><h3>ക്ലാസ്സ്: ${classVal}${div} (ഓർഡറുകൾ: ${divData.length})</h3></div>`;
+            html += '<table><thead><tr><th>പുസ്തകത്തിന്റെ പേര്</th><th style="text-align:center;">എണ്ണം</th></tr></thead><tbody>';
+
+            Object.keys(bookCounts).sort().forEach(name => {
+                html += `<tr><td>${name}</td><td class="count-column">${bookCounts[name]}</td></tr>`;
+            });
+
+            html += '</tbody></table>';
+        });
+
+        document.getElementById('reportArea').innerHTML = html || '<p style="text-align:center; padding:20px;">ഈ സെക്ഷനിൽ ഡാറ്റ ലഭ്യമല്ല.</p>';
     }
 </script>
 
