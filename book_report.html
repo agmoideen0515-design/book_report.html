@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMS Detailed Stock Report</title>
+    <title>MEMS Class & Division Summary</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -15,13 +15,13 @@
         .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; }
         select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; min-width: 150px; font-family: 'Noto Sans Malayalam', sans-serif; }
         
+        /* ക്ലാസ്സ് ടോട്ടൽ ബോക്സ് */
+        .class-summary-box { background: #fff3e0; border: 2px solid #ffb74d; padding: 15px; border-radius: 10px; margin-bottom: 25px; text-align: center; }
+        .class-summary-box h4 { margin: 0 0 10px 0; color: #e65100; text-transform: uppercase; }
+
         .report-card { border: 1px solid #ddd; border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
         .report-header { background: #1a5d1a; color: white; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
         .report-header h3 { margin: 0; font-size: 1.1em; }
-        
-        .btn-desc { background: #ffffff; color: #1a5d1a; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em; font-family: 'Noto Sans Malayalam', sans-serif; }
-        
-        .description-box { background: #fffde7; padding: 15px; border-bottom: 1px solid #eee; display: none; font-size: 0.95em; color: #333; }
         
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; color: #333; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; }
@@ -31,8 +31,7 @@
         .btn-print { background: #1a5d1a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: auto; font-family: 'Noto Sans Malayalam', sans-serif; }
 
         @media print {
-            .admin-controls, .btn-print, .btn-desc { display: none !important; }
-            .description-box { display: block !important; background: white; border: 1px solid #ddd; }
+            .admin-controls, .btn-print { display: none !important; }
             .container { box-shadow: none; width: 100%; }
         }
     </style>
@@ -42,7 +41,7 @@
 <div class="container">
     <div class="header-box">
         <h2>MEMS TRIKARIPUR</h2>
-        <p><b>ഡിവിഷൻ തിരിച്ചുള്ള പുസ്തക റിപ്പോർട്ട് - 2026</b></p>
+        <p><b>ഓഫീസ് സ്റ്റോക്ക് റിപ്പോർട്ട് - 2026</b></p>
     </div>
 
     <div class="admin-controls">
@@ -54,13 +53,15 @@
         </select>
         <label>ഡിവിഷൻ:</label>
         <select id="divFilter" onchange="generateReport()">
-            <option value="all">എല്ലാം</option>
+            <option value="all">എല്ലാ ഡിവിഷനും</option>
             <option value="A">A</option><option value="B">B</option><option value="C">C</option>
             <option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
         </select>
         <button class="btn-print" onclick="window.print()">🖨️ പ്രിന്റ്</button>
     </div>
 
+    <div id="classSummaryArea"></div>
+    
     <div id="reportArea"></div>
 </div>
 
@@ -73,20 +74,35 @@
         generateReport();
     });
 
-    function toggleDesc(id) {
-        const x = document.getElementById(id);
-        x.style.display = (x.style.display === "block") ? "none" : "block";
-    }
-
     function generateReport() {
         const classVal = document.getElementById('classFilter').value;
         const divVal = document.getElementById('divFilter').value;
-        const filtered = allData.filter(item => String(item.sClass) === classVal && (divVal === 'all' || item.division === divVal));
+        
+        // തിരഞ്ഞെടുത്ത ക്ലാസ്സിലെ ആകെ കുട്ടികൾ (എല്ലാ ഡിവിഷനും ചേർത്ത്)
+        const classData = allData.filter(item => String(item.sClass) === classVal);
+        
+        // തിരഞ്ഞെടുത്ത ക്ലാസ്സിലെ ആകെ പുസ്തകങ്ങളുടെ കണക്ക്
+        let classBookTotal = 0;
+        classData.forEach(item => {
+            const count = item.selectedBooks.split(',').filter(n => n.trim()).length;
+            classBookTotal += count;
+        });
 
+        // ക്ലാസ്സ് സമ്മറി ബോക്സ് കാണിക്കുന്നു
+        document.getElementById('classSummaryArea').innerHTML = `
+            <div class="class-summary-box">
+                <h4>ക്ലാസ്സ് ${classVal} - ആകെ വിവരണം</h4>
+                <p>ഈ ക്ലാസ്സിലെ എല്ലാ ഡിവിഷനുകളിലുമായി ആകെ <b>${classData.length}</b> കുട്ടികളാണ് ഓർഡർ നൽകിയിട്ടുള്ളത്. 
+                വിതരണം ചെയ്യേണ്ട ആകെ പുസ്തകങ്ങൾ: <b>${classBookTotal}</b> എണ്ണം.</p>
+            </div>
+        `;
+
+        // ഡിവിഷൻ തിരിച്ചുള്ള ഫിൽട്ടറിംഗ്
+        const filtered = classData.filter(item => (divVal === 'all' || item.division === divVal));
         let html = '';
         const divisions = divVal === 'all' ? [...new Set(filtered.map(item => item.division))].sort() : [divVal];
 
-        divisions.forEach((div, index) => {
+        divisions.forEach((div) => {
             const divData = filtered.filter(item => item.division === div);
             if (divData.length === 0) return;
 
@@ -98,16 +114,10 @@
                 });
             });
 
-            const descId = `desc-${index}`;
             html += `
                 <div class="report-card">
                     <div class="report-header">
-                        <h3>ക്ലാസ്സ്: ${classVal}${div}</h3>
-                        <button class="btn-desc" onclick="toggleDesc('${descId}')">വിവരണം കാണുക</button>
-                    </div>
-                    <div id="${descId}" class="description-box">
-                        ഈ റിപ്പോർട്ട് പ്രകാരം <b>ക്ലാസ്സ് ${classVal}${div}</b>-ൽ ആകെ <b>${divData.length}</b> കുട്ടികളാണ് പുസ്തകങ്ങൾക്കായി ഓർഡർ നൽകിയിട്ടുള്ളത്. 
-                        ഓരോ പുസ്തകത്തിന്റെയും ആകെ എണ്ണം താഴെ നൽകുന്നു.
+                        <h3>ക്ലാസ്സ്: ${classVal}${div} (ഓർഡറുകൾ: ${divData.length})</h3>
                     </div>
                     <table>
                         <thead><tr><th>പുസ്തകം</th><th style="text-align:center;">എണ്ണം</th></tr></thead>
