@@ -3,35 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMS Division-wise Stock Report</title>
+    <title>MEMS Detailed Stock Report</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        body { 
-            font-family: 'Noto Sans Malayalam', sans-serif; /* ഫോണ്ട് ഇവിടെ നൽകി */
-            background: #f4f7f6; 
-            padding: 20px; 
-            line-height: 1.6;
-        }
+        body { font-family: 'Noto Sans Malayalam', sans-serif; background: #f4f7f6; padding: 20px; }
         .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 900px; margin: auto; }
         .header-box { text-align: center; border-bottom: 3px solid #1a5d1a; margin-bottom: 20px; padding-bottom: 10px; }
         h2 { color: #1a5d1a; margin: 0; }
         
-        .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-        select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; min-width: 150px; font-weight: bold; font-family: 'Noto Sans Malayalam', sans-serif; }
+        .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; }
+        select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; min-width: 150px; font-family: 'Noto Sans Malayalam', sans-serif; }
+        
+        .report-card { border: 1px solid #ddd; border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
+        .report-header { background: #1a5d1a; color: white; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .report-header h3 { margin: 0; font-size: 1.1em; }
+        
+        .btn-desc { background: #ffffff; color: #1a5d1a; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em; font-family: 'Noto Sans Malayalam', sans-serif; }
+        
+        .description-box { background: #fffde7; padding: 15px; border-bottom: 1px solid #eee; display: none; font-size: 0.95em; color: #333; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9fa; color: #333; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; }
+        td { border-bottom: 1px solid #eee; padding: 12px; font-weight: bold; }
+        .count-column { text-align: center; color: #d32f2f; font-size: 1.2em; width: 100px; }
+
         .btn-print { background: #1a5d1a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: auto; font-family: 'Noto Sans Malayalam', sans-serif; }
-        
-        .report-header { background: #1a5d1a; color: white; padding: 12px; border-radius: 5px; text-align: center; margin: 20px 0 10px 0; }
-        
-        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        th { background: #f0f0f0; color: #333; padding: 12px; text-align: left; border: 1px solid #ddd; }
-        td { border: 1px solid #ddd; padding: 12px; font-weight: bold; }
-        .count-column { text-align: center; color: #d32f2f; font-size: 1.2em; width: 120px; background: #fff8f8; }
 
         @media print {
-            .admin-controls, .btn-print { display: none !important; }
-            .container { box-shadow: none; border: none; width: 100%; }
-            body { padding: 0; background: white; }
+            .admin-controls, .btn-print, .btn-desc { display: none !important; }
+            .description-box { display: block !important; background: white; border: 1px solid #ddd; }
+            .container { box-shadow: none; width: 100%; }
         }
     </style>
 </head>
@@ -40,29 +42,26 @@
 <div class="container">
     <div class="header-box">
         <h2>MEMS TRIKARIPUR</h2>
-        <p><b>DIVISION-WISE BOOK STOCK REPORT - 2026</b></p>
+        <p><b>ഡിവിഷൻ തിരിച്ചുള്ള പുസ്തക റിപ്പോർട്ട് - 2026</b></p>
     </div>
 
     <div class="admin-controls">
-        <label><b>ക്ലാസ്സ്:</b></label>
-        <select id="classFilter" onchange="generateDivisionReport()">
+        <label>ക്ലാസ്സ്:</label>
+        <select id="classFilter" onchange="generateReport()">
             <option value="3">Class 3</option><option value="4">Class 4</option>
             <option value="5">Class 5</option><option value="6">Class 6</option>
             <option value="7">Class 7</option><option value="8">Class 8</option>
         </select>
-
-        <label><b>ഡിവിഷൻ:</b></label>
-        <select id="divFilter" onchange="generateDivisionReport()">
-            <option value="all">എല്ലാ ഡിവിഷനും (All)</option>
+        <label>ഡിവിഷൻ:</label>
+        <select id="divFilter" onchange="generateReport()">
+            <option value="all">എല്ലാം</option>
             <option value="A">A</option><option value="B">B</option><option value="C">C</option>
             <option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
         </select>
-
-        <button class="btn-print" onclick="window.print()">🖨️ പ്രിന്റ് ചെയ്യുക</button>
+        <button class="btn-print" onclick="window.print()">🖨️ പ്രിന്റ്</button>
     </div>
 
-    <div id="reportArea">
-        </div>
+    <div id="reportArea"></div>
 </div>
 
 <script>
@@ -71,44 +70,56 @@
 
     fetch(scriptURL).then(res => res.json()).then(data => {
         allData = data;
-        generateDivisionReport();
+        generateReport();
     });
 
-    function generateDivisionReport() {
+    function toggleDesc(id) {
+        const x = document.getElementById(id);
+        x.style.display = (x.style.display === "block") ? "none" : "block";
+    }
+
+    function generateReport() {
         const classVal = document.getElementById('classFilter').value;
         const divVal = document.getElementById('divFilter').value;
-        
-        const filtered = allData.filter(item => {
-            return String(item.sClass) === classVal && (divVal === 'all' || item.division === divVal);
-        });
+        const filtered = allData.filter(item => String(item.sClass) === classVal && (divVal === 'all' || item.division === divVal));
 
         let html = '';
         const divisions = divVal === 'all' ? [...new Set(filtered.map(item => item.division))].sort() : [divVal];
 
-        divisions.forEach(div => {
+        divisions.forEach((div, index) => {
             const divData = filtered.filter(item => item.division === div);
             if (divData.length === 0) return;
 
             let bookCounts = {};
             divData.forEach(item => {
-                const books = item.selectedBooks.split(',');
-                books.forEach(name => {
-                    let cleanName = name.trim();
-                    if (cleanName) bookCounts[cleanName] = (bookCounts[cleanName] || 0) + 1;
+                item.selectedBooks.split(',').forEach(name => {
+                    let clean = name.trim();
+                    if (clean) bookCounts[clean] = (bookCounts[clean] || 0) + 1;
                 });
             });
 
-            html += `<div class="report-header"><h3>ക്ലാസ്സ്: ${classVal}${div} (ഓർഡറുകൾ: ${divData.length})</h3></div>`;
-            html += '<table><thead><tr><th>പുസ്തകത്തിന്റെ പേര്</th><th style="text-align:center;">എണ്ണം</th></tr></thead><tbody>';
-
-            Object.keys(bookCounts).sort().forEach(name => {
-                html += `<tr><td>${name}</td><td class="count-column">${bookCounts[name]}</td></tr>`;
-            });
-
-            html += '</tbody></table>';
+            const descId = `desc-${index}`;
+            html += `
+                <div class="report-card">
+                    <div class="report-header">
+                        <h3>ക്ലാസ്സ്: ${classVal}${div}</h3>
+                        <button class="btn-desc" onclick="toggleDesc('${descId}')">വിവരണം കാണുക</button>
+                    </div>
+                    <div id="${descId}" class="description-box">
+                        ഈ റിപ്പോർട്ട് പ്രകാരം <b>ക്ലാസ്സ് ${classVal}${div}</b>-ൽ ആകെ <b>${divData.length}</b> കുട്ടികളാണ് പുസ്തകങ്ങൾക്കായി ഓർഡർ നൽകിയിട്ടുള്ളത്. 
+                        ഓരോ പുസ്തകത്തിന്റെയും ആകെ എണ്ണം താഴെ നൽകുന്നു.
+                    </div>
+                    <table>
+                        <thead><tr><th>പുസ്തകം</th><th style="text-align:center;">എണ്ണം</th></tr></thead>
+                        <tbody>
+                            ${Object.keys(bookCounts).sort().map(name => `
+                                <tr><td>${name}</td><td class="count-column">${bookCounts[name]}</td></tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
         });
-
-        document.getElementById('reportArea').innerHTML = html || '<p style="text-align:center; padding:20px;">വിവരങ്ങൾ ലഭ്യമല്ല.</p>';
+        document.getElementById('reportArea').innerHTML = html || '<p style="text-align:center;">ഡാറ്റ ലഭ്യമല്ല.</p>';
     }
 </script>
 
