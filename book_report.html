@@ -7,34 +7,23 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
         .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 1100px; margin: auto; }
-        
         .header-box { text-align: center; border-bottom: 3px solid #1a5d1a; margin-bottom: 25px; padding-bottom: 10px; }
-        h2 { color: #1a5d1a; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        h2 { color: #1a5d1a; margin: 0; text-transform: uppercase; }
         p.school-name { margin: 5px 0; color: #666; font-weight: bold; }
-
         .admin-controls { background: #e8f5e9; padding: 20px; border-radius: 10px; margin-bottom: 25px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
         .control-group { display: flex; flex-direction: column; gap: 5px; }
         label { font-weight: bold; color: #2e7d32; font-size: 0.9em; }
-        select { padding: 10px; border: 1px solid #adcab1; border-radius: 6px; min-width: 150px; outline: none; }
-
-        .btn-print { background: #1a5d1a; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 8px; margin-left: auto; }
-        .btn-print:hover { background: #144514; box-shadow: 0 3px 10px rgba(0,0,0,0.2); }
-
+        select { padding: 10px; border: 1px solid #adcab1; border-radius: 6px; min-width: 130px; }
+        .btn-print { background: #1a5d1a; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: auto; }
         .summary-badge { background: #1a5d1a; color: white; padding: 10px 20px; border-radius: 50px; display: inline-block; margin-bottom: 15px; font-weight: bold; }
-
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #1a5d1a; color: white; padding: 15px 10px; text-align: left; font-size: 0.95em; }
-        td { border-bottom: 1px solid #eee; padding: 12px 10px; font-size: 0.9em; }
+        th { background: #1a5d1a; color: white; padding: 12px; text-align: left; }
+        td { border-bottom: 1px solid #eee; padding: 12px; }
         tr:nth-child(even) { background-color: #fcfdfc; }
-        tr:hover { background-color: #f1f8f1; }
-
-        /* പ്രിന്റ് ചെയ്യുമ്പോൾ മാത്രം വരുന്ന മാറ്റങ്ങൾ */
         @media print {
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
             .admin-controls, .btn-print { display: none !important; }
-            th { background: #1a5d1a !important; color: white !important; -webkit-print-color-adjust: exact; }
-            .header-box { margin-top: 0; }
+            body { padding: 0; background: white; }
+            .container { box-shadow: none; max-width: 100%; }
         }
     </style>
 </head>
@@ -48,15 +37,12 @@
 
     <div class="admin-controls">
         <div class="control-group">
-            <label>ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക</label>
+            <label>ക്ലാസ്സ്</label>
             <select id="classFilter" onchange="filterData()">
                 <option value="all">എല്ലാ ക്ലാസ്സുകളും</option>
-                <option value="3">Class 3</option>
-                <option value="4">Class 4</option>
-                <option value="5">Class 5</option>
-                <option value="6">Class 6</option>
-                <option value="7">Class 7</option>
-                <option value="8">Class 8</option>
+                <option value="3">Class 3</option><option value="4">Class 4</option>
+                <option value="5">Class 5</option><option value="6">Class 6</option>
+                <option value="7">Class 7</option><option value="8">Class 8</option>
             </select>
         </div>
 
@@ -67,20 +53,13 @@
                 <option value="A">A</option><option value="B">B</option>
                 <option value="C">C</option><option value="D">D</option>
                 <option value="E">E</option><option value="F">F</option>
-            </select>
+                <option value="G">G</option> </select>
         </div>
 
-        <button class="btn-print" onclick="window.print()">
-            🖨️ Print Report
-        </button>
+        <button class="btn-print" onclick="window.print()">🖨️ Print Report</button>
     </div>
 
     <div id="summary" class="summary-badge">ആകെ ഓർഡറുകൾ: 0</div>
-    
-    <div id="status" style="text-align:center; padding: 40px; color: #666;">
-        <b>വിവരങ്ങൾ ശേഖരിക്കുന്നു... ദയവായി കാത്തിരിക്കൂ.</b>
-    </div>
-
     <div id="tableContent"></div>
 </div>
 
@@ -92,11 +71,7 @@
     .then(response => response.json())
     .then(data => {
         allData = data;
-        document.getElementById('status').style.display = 'none';
         filterData();
-    })
-    .catch(error => {
-        document.getElementById('status').innerHTML = "<b style='color:red;'>ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ പിശക്!</b>";
     });
 
     function filterData() {
@@ -111,23 +86,12 @@
         
         document.getElementById('summary').innerText = `ആകെ ഓർഡറുകൾ: ${filtered.length}`;
         
-        if (filtered.length === 0) {
-            document.getElementById('tableContent').innerHTML = "<p style='text-align:center; padding:50px;'>ഓർഡറുകൾ ഒന്നും കണ്ടെത്തിയില്ല.</p>";
-            return;
-        }
-
-        let html = '<table><thead><tr><th>No.</th><th>Student Name</th><th>Class</th><th>Div</th><th>Books Ordered</th></tr></thead><tbody>';
+        let html = '<table><thead><tr><th>No.</th><th>Student Name</th><th>Class</th><th>Div</th><th>Books</th></tr></thead><tbody>';
         filtered.forEach((item, index) => {
-            html += `<tr>
-                <td>${index + 1}</td>
-                <td style="font-weight:bold;">${item.name}</td>
-                <td>${item.sClass}</td>
-                <td>${item.division}</td>
-                <td style="color:#1a5d1a;">${item.selectedBooks}</td>
-            </tr>`;
+            html += `<tr><td>${index + 1}</td><td><b>${item.name}</b></td><td>${item.sClass}</td><td>${item.division}</td><td>${item.selectedBooks}</td></tr>`;
         });
         html += '</tbody></table>';
-        document.getElementById('tableContent').innerHTML = html;
+        document.getElementById('tableContent').innerHTML = filtered.length > 0 ? html : '<p style="text-align:center;">ഓർഡറുകൾ ലഭ്യമല്ല.</p>';
     }
 </script>
 
