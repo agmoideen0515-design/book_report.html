@@ -1,22 +1,66 @@
-displayTable(filtered);
-        document.getElementById('stats').innerText = ആകെ ഓർഡറുകൾ: ${filtered.length};
-    }
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMS Book Order Report</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1000px; margin: auto; }
+        h2 { color: #1a5d1a; text-align: center; border-bottom: 2px solid #1a5d1a; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #1a5d1a; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .filter-section { background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
 
-    function displayTable(data) {
-        let html = '<table><thead><tr><th>No.</th><th>Name</th><th>Class</th><th>Div</th><th>Books Ordered</th></tr></thead><tbody>';
+<div class="container">
+    <h2>MEMS TRIKARIPUR - BOOK ORDER REPORT</h2>
+    <div class="filter-section">
+        <label>ക്ലാസ്സ് തിരഞ്ഞെടുക്കുക: </label>
+        <select id="classFilter" onchange="filterData()">
+            <option value="all">All Classes</option>
+            <option value="3">Class 3</option>
+            <option value="4">Class 4</option>
+            <option value="5">Class 5</option>
+            <option value="6">Class 6</option>
+            <option value="7">Class 7</option>
+            <option value="8">Class 8</option>
+        </select>
+    </div>
+    <div id="status" style="text-align:center;">ഡാറ്റ ലോഡ് ചെയ്യുന്നു...</div>
+    <div id="tableContent"></div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyWgOtjAw-QZcp7fryP0q5B1ga3Yd-L7v21Fa0BzGYD1VgZ-UUr_QVW7nKmWcDyQAC9/exec';
+    let allData = [];
+
+    fetch(scriptURL)
+    .then(response => response.json())
+    .then(data => {
+        allData = data;
+        document.getElementById('status').style.display = 'none';
+        filterData();
+    })
+    .catch(error => {
+        document.getElementById('status').innerText = "ഡാറ്റ ലഭിക്കുന്നതിൽ തടസ്സം നേരിട്ടു.";
+    });
+
+    function filterData() {
+        const classVal = document.getElementById('classFilter').value;
+        const filtered = allData.filter(item => (classVal === 'all' || String(item.sClass) === classVal));
         
-        data.forEach((item, index) => {
-            html += <tr>
-                <td>${index + 1}</td>
-                <td>${item.name}</td>
-                <td>${item.sClass}</td>
-                <td>${item.division}</td>
-                <td>${item.selectedBooks}</td>
-            </tr>;
+        let html = '<table><thead><tr><th>No.</th><th>Name</th><th>Class</th><th>Div</th><th>Books</th></tr></thead><tbody>';
+        filtered.forEach((item, index) => {
+            html += <tr><td>${index + 1}</td><td>${item.name}</td><td>${item.sClass}</td><td>${item.division}</td><td>${item.selectedBooks}</td></tr>;
         });
-
         html += '</tbody></table>';
-        document.getElementById('tableContent').innerHTML = data.length > 0 ? html : '<p style="text-align:center;">ഈ സെക്ഷനിൽ ഓർഡറുകൾ ഒന്നും ലഭ്യമല്ല.</p>';
+        document.getElementById('tableContent').innerHTML = filtered.length > 0 ? html : '<p style="text-align:center;">ഓർഡറുകൾ ലഭ്യമല്ല.</p>';
     }
 </script>
 
