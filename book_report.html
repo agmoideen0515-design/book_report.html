@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMS Office Final Report</title>
+    <title>MEMS Office Final Stock Report</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -12,16 +12,21 @@
         .header-box { text-align: center; border-bottom: 3px solid #1a5d1a; margin-bottom: 20px; padding-bottom: 10px; }
         h2 { color: #1a5d1a; margin: 0; }
         
-        .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; }
+        .admin-controls { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
         select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; min-width: 150px; font-family: 'Noto Sans Malayalam', sans-serif; }
         
-        /* Summary Box Design */
-        .class-summary-box { background: #e3f2fd; border: 2px solid #2196f3; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
-        .class-summary-box h4 { margin: 0 0 10px 0; color: #0d47a1; text-align: center; text-transform: uppercase; }
-        .sum-grid { display: flex; justify-content: space-around; text-align: center; margin-top: 10px; }
-        .sum-item b { font-size: 1.5em; color: #d32f2f; display: block; }
-        .sum-item span { font-size: 0.9em; color: #555; }
+        /* Buttons */
+        .btn-action { padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; border: none; font-family: 'Noto Sans Malayalam', sans-serif; }
+        .btn-print { background: #1a5d1a; color: white; margin-left: auto; }
+        .btn-info { background: #0277bd; color: white; }
 
+        /* Summary Box */
+        #descriptionArea { display: none; background: #fffde7; border: 2px solid #fbc02d; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
+        .summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+        .summary-table td, .summary-table th { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .summary-table th { background: #fff9c4; }
+
+        /* Report Cards */
         .report-card { border: 1px solid #ddd; border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
         .report-header { background: #1a5d1a; color: white; padding: 12px; }
         .report-header h3 { margin: 0; font-size: 1.1em; }
@@ -31,10 +36,9 @@
         td { border-bottom: 1px solid #eee; padding: 12px; font-weight: bold; }
         .count-column { text-align: center; color: #d32f2f; font-size: 1.2em; width: 100px; }
 
-        .btn-print { background: #1a5d1a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: auto; font-family: 'Noto Sans Malayalam', sans-serif; }
-
         @media print {
-            .admin-controls, .btn-print { display: none !important; }
+            .admin-controls, .btn-action { display: none !important; }
+            #descriptionArea { display: block !important; border: 1px solid #333; background: white; }
             .container { box-shadow: none; width: 100%; }
         }
     </style>
@@ -44,7 +48,7 @@
 <div class="container">
     <div class="header-box">
         <h2>MEMS TRIKARIPUR</h2>
-        <p><b>ഓഫീസ് സ്റ്റോക്ക് റിപ്പോർട്ട് - 2026</b></p>
+        <p><b>ഓഫീസ് ബുക്ക് സ്റ്റോക്ക് റിപ്പോർട്ട് - 2026</b></p>
     </div>
 
     <div class="admin-controls">
@@ -60,10 +64,13 @@
             <option value="A">A</option><option value="B">B</option><option value="C">C</option>
             <option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
         </select>
-        <button class="btn-print" onclick="window.print()">🖨️ പ്രിന്റ്</button>
+        
+        <button class="btn-action btn-info" onclick="toggleDescription()">വിവരണം കാണുക</button>
+        <button class="btn-action btn-print" onclick="window.print()">പ്രിന്റ് എടുക്കുക</button>
     </div>
 
-    <div id="classSummaryArea"></div>
+    <div id="descriptionArea"></div>
+    
     <div id="reportArea"></div>
 </div>
 
@@ -76,39 +83,38 @@
         generateReport();
     });
 
+    function toggleDescription() {
+        const area = document.getElementById('descriptionArea');
+        area.style.display = (area.style.display === 'block') ? 'none' : 'block';
+    }
+
     function generateReport() {
         const classVal = document.getElementById('classFilter').value;
         const divVal = document.getElementById('divFilter').value;
+        
+        // തിരഞ്ഞെടുത്ത ക്ലാസ്സിലെ ആകെ വിവരങ്ങൾ (എല്ലാ ഡിവിഷനും)
         const classData = allData.filter(item => String(item.sClass) === classVal);
         
-        let totalText = 0;
-        let totalWork = 0;
-
-        // ഓരോ കുട്ടിയുടെയും പുസ്തകങ്ങൾ പരിശോധിച്ച് ടെക്സ്റ്റ്/വർക്ക് ബുക്കുകൾ എണ്ണുന്നു
+        let classBookCounts = {};
         classData.forEach(item => {
-            const books = item.selectedBooks.toLowerCase();
-            const bookList = item.selectedBooks.split(',');
-            bookList.forEach(b => {
-                let name = b.toLowerCase();
-                if(name.includes("text")) totalText++;
-                else if(name.includes("work")) totalWork++;
+            item.selectedBooks.split(',').forEach(name => {
+                let clean = name.trim();
+                if (clean) classBookCounts[clean] = (classBookCounts[clean] || 0) + 1;
             });
         });
 
-        document.getElementById('classSummaryArea').innerHTML = `
-            <div class="class-summary-box">
-                <h4>ക്ലാസ്സ് ${classVal} - ആകെ സ്റ്റോക്ക് വിവരണം</h4>
-                <div class="sum-grid">
-                    <div class="sum-item"><span>ആകെ കുട്ടികൾ</span><b>${classData.length}</b></div>
-                    <div class="sum-item"><span>ടെക്സ്റ്റ് ബുക്കുകൾ</span><b>${totalText}</b></div>
-                    <div class="sum-item"><span>വർക്ക് ബുക്കുകൾ</span><b>${totalWork}</b></div>
-                </div>
-                <p style="text-align:center; font-size:0.9em; margin-top:15px; color:#555;">
-                    ഈ ക്ലാസ്സിലെ എല്ലാ ഡിവിഷനുകളിലുമായി വിതരണം ചെയ്യേണ്ട ആകെ പുസ്തകങ്ങളുടെ കണക്കാണിത്.
-                </p>
-            </div>
-        `;
+        // വിവരണം ഏരിയ അപ്‌ഡേറ്റ് ചെയ്യുന്നു
+        let descHtml = `<h4>ക്ലാസ്സ് ${classVal} - ആകെ കിതാബുകളുടെ വിവരം</h4>`;
+        descHtml += `<p>ഈ ക്ലാസ്സിലെ എല്ലാ ഡിവിഷനുകളിലുമായി ആകെ ആവശ്യമുള്ള കിതാബുകളുടെ കണക്ക് താഴെ നൽകുന്നു:</p>`;
+        descHtml += `<table class="summary-table"><thead><tr><th>കിതാബിന്റെ പേര്</th><th>ആകെ എണ്ണം</th></tr></thead><tbody>`;
+        
+        Object.keys(classBookCounts).sort().forEach(book => {
+            descHtml += `<tr><td>${book}</td><td><b>${classBookCounts[book]}</b></td></tr>`;
+        });
+        descHtml += `</tbody></table>`;
+        document.getElementById('descriptionArea').innerHTML = descHtml;
 
+        // ഓരോ ഡിവിഷൻ തിരിച്ചുള്ള റിപ്പോർട്ട്
         const filtered = classData.filter(item => (divVal === 'all' || item.division === divVal));
         let html = '';
         const divisions = divVal === 'all' ? [...new Set(filtered.map(item => item.division))].sort() : [divVal];
@@ -117,24 +123,22 @@
             const divData = filtered.filter(item => item.division === div);
             if (divData.length === 0) return;
 
-            let bookCounts = {};
+            let divBookCounts = {};
             divData.forEach(item => {
                 item.selectedBooks.split(',').forEach(name => {
                     let clean = name.trim();
-                    if (clean) bookCounts[clean] = (bookCounts[clean] || 0) + 1;
+                    if (clean) divBookCounts[clean] = (divBookCounts[clean] || 0) + 1;
                 });
             });
 
             html += `
                 <div class="report-card">
-                    <div class="report-header">
-                        <h3>ക്ലാസ്സ്: ${classVal}${div} (ഓർഡറുകൾ: ${divData.length})</h3>
-                    </div>
+                    <div class="report-header"><h3>ക്ലാസ്സ്: ${classVal}${div} (കുട്ടികൾ: ${divData.length})</h3></div>
                     <table>
-                        <thead><tr><th>പുസ്തകം</th><th style="text-align:center;">എണ്ണം</th></tr></thead>
+                        <thead><tr><th>കിതാബ്</th><th style="text-align:center;">എണ്ണം</th></tr></thead>
                         <tbody>
-                            ${Object.keys(bookCounts).sort().map(name => `
-                                <tr><td>${name}</td><td class="count-column">${bookCounts[name]}</td></tr>
+                            ${Object.keys(divBookCounts).sort().map(name => `
+                                <tr><td>${name}</td><td class="count-column">${divBookCounts[name]}</td></tr>
                             `).join('')}
                         </tbody>
                     </table>
