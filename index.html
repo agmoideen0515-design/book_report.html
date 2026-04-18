@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>മദ്രസ നോട്ട്</title>
+    <style>
+        body { background: #eee; padding: 20px; font-family: sans-serif; }
+        .page {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            min-height: 1000px;
+            margin: auto;
+            border-right: 3px solid #ff4d4d; /* വലതുവശത്തെ മാർജിൻ */
+            padding: 40px;
+            box-sizing: border-box;
+            line-height: 2.2;
+            background-image: linear-gradient(#d1d1d1 1px, transparent 1px);
+            background-size: 100% 2.2em;
+        }
+        .header { text-align: center; border-bottom: 2px solid #333; margin-bottom: 20px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="text-align:center; margin-bottom:20px;">
+        <button onclick="window.print()" style="padding:10px 20px; background:green; color:white; border:none; border-radius:5px;">PDF ആക്കുക / പ്രിന്റ് എടുക്കുക</button>
+    </div>
+    <div class="page" contenteditable="true">
+        <div class="header">
+            <h2>പാഠം: ........</h2>
+            <p>തിയ്യതി: ..../..../.......</p>
+        </div>
+        ഇവിടെ അറബി മലയാളം ടൈപ്പ് ചെയ്യുക...
+    </div>
+</body>
+</html>
